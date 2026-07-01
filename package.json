@@ -6,6 +6,8 @@
   "license": "MIT",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "format": "prettier --write \"**/*.{js,css,html,md,json,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,css,html,md,json,yml}\"",
     "start": "npx --yes serve . -p 8765"
   },
   "engines": {
@@ -17,5 +19,8 @@
     "trash-can",
     "cnc",
     "woodworking"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
 }

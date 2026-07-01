@@ -34,9 +34,31 @@ npm test
 index.html          App shell
 css/app.css         Styles (screen + print)
 js/cutoutSpec.js    Pure calculation engine (Node + browser)
-js/app.js           UI, diagram, print
-tests/              Node unit tests
+js/format.js        Display formatting (inch marks, escape)
+js/state.js         App state, inputs, cubby selection
+js/diagram.js       Plan-view SVG diagram + zoom/pan
+js/print.js         Printable shop sheet
+js/app.js           Render loop + event wiring
+docs/MATH_REFERENCE.md   Every cutoutSpec function explained
+tests/              Node unit tests (math + golden shop cases)
 ```
+
+**Editor:** `.editorconfig` forces UTF-8 (prevents corrupted inch marks). Format with `npm run format`.
+
+## Golden shop cases
+
+Trace against customer PDF elevation at **4.75″ grip**. Default box: **11.375″ W × 21″ D**, **½″ sides** (interior 10.375″ × 20″).
+
+| Can | Orientation | Cutout W × D | Fits default box? |
+|-----|-------------|--------------|-------------------|
+| RV-35 | Rotated 90° | **8.713 × 12.273** | Yes |
+| RV-35 | Standard | 12.273 × 8.713 | Yes |
+| RV-50 | Standard | **12.162 × 8.608** | No — needs wider box |
+| RV-50 | Rotated 90° | 8.608 × 12.162 | Yes (depth fits; width tight) |
+
+**Height clearance:** RV-35 needs **18.85″** interior (1″ under-can + 17.85″ can). RV-50 needs **22.75″**.
+
+Full function reference: [docs/MATH_REFERENCE.md](docs/MATH_REFERENCE.md). Automated checks: `tests/goldenCases.test.js`.
 
 ## Math / shop rules (summary)
 
