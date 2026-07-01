@@ -36,7 +36,7 @@
 
         .page { max-width: 1100px; margin: 0 auto; padding: 16px 20px 24px; }
 
-        /* â”€â”€ Header â”€â”€ */
+        /* ── Header ── */
         .header-banner {
             background: var(--brand-blue);
             color: white;
@@ -55,7 +55,7 @@
             background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 6px;
         }
 
-        /* â”€â”€ Layout â”€â”€ */
+        /* ── Layout ── */
         .layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
         @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
 
@@ -125,7 +125,7 @@
         .input-unit { position: relative; }
         .input-unit input { padding-right: 30px; }
         .input-unit::after {
-            content: 'â€³'; position: absolute; right: 12px; top: 50%;
+            content: '″'; position: absolute; right: 12px; top: 50%;
             transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none;
         }
 
@@ -164,7 +164,7 @@
             background: var(--danger-soft);
         }
 
-        /* â”€â”€ Results â”€â”€ */
+        /* ── Results ── */
         .results { display: flex; flex-direction: column; gap: 12px; }
 
         .key-metrics {
@@ -228,7 +228,7 @@
         }
         .orient__cutout span { color: var(--text-muted); font-weight: 500; font-size: 11px; }
 
-        /* â”€â”€ Diagram â”€â”€ */
+        /* ── Diagram ── */
         .diagram-card { padding: 14px 16px; }
         .diagram-head {
             display: flex; justify-content: space-between; align-items: center;
@@ -488,7 +488,7 @@
             cursor: not-allowed;
         }
 
-        /* â”€â”€ Print sheet (hidden on screen, shown when printing) â”€â”€ */
+        /* ── Print sheet (hidden on screen, shown when printing) ── */
         .print-sheet { display: none; }
 
         @media print {

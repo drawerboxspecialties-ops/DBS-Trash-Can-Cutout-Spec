@@ -2,7 +2,7 @@
 
 Shop-floor calculator for **pullout trash can** box layouts: cutout openings, interior dimensions, double-can layouts, cubby placement, and a printable plan view.
 
-Live demo: enable **GitHub Pages** on this repo (Settings → Pages → GitHub Actions).
+Live app: **https://drawerboxspecialties-ops.github.io/DBS-Trash-Can-Cutout-Spec/**
 
 ## Features
 

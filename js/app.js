@@ -119,7 +119,7 @@ function sideInches() {
 
 (function initMaterialSelects() {
     $('sideMaterial').innerHTML = Object.entries(SIDE_MATERIALS)
-        .map(([key, m]) => `<option value="${key}"${key === state.sideKey ? ' selected' : ''}>${m.label} (${m.inches.toFixed(3)}â€³)</option>`)
+        .map(([key, m]) => `<option value="${key}"${key === state.sideKey ? ' selected' : ''}>${m.label} (${m.inches.toFixed(3)}″)</option>`)
         .join('');
     $('canModel').innerHTML = Object.keys(CAN_MODELS)
         .map(function (key) {
@@ -135,7 +135,7 @@ function cubbyFor(orientId) {
 }
 
 function fmt(n) {
-    return Number(n).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + 'â€³';
+    return Number(n).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + '″';
 }
 
 function validateCabinetField(id, errId) {
@@ -169,12 +169,12 @@ function readInput() {
 
 function statusInlineHtml(r) {
     if (r.fits && r.autoSelected) {
-        return '<div class="layout-status layout-status--ok"><span class="layout-status__icon">âœ“</span><span>Fits â€” ' + escAttr(r.autoSelected.label) + '</span></div>';
+        return '<div class="layout-status layout-status--ok"><span class="layout-status__icon">✓</span><span>Fits — ' + escAttr(r.autoSelected.label) + '</span></div>';
     }
     if (r.fits) {
-        return '<div class="layout-status layout-status--ok"><span class="layout-status__icon">âœ“</span><span>Fits</span></div>';
+        return '<div class="layout-status layout-status--ok"><span class="layout-status__icon">✓</span><span>Fits</span></div>';
     }
-    return '<div class="layout-status layout-status--err"><span class="layout-status__icon">âœ•</span><span>Does not fit â€” enlarge box or change layout</span></div>';
+    return '<div class="layout-status layout-status--err"><span class="layout-status__icon">✗</span><span>Does not fit — enlarge box or change layout</span></div>';
 }
 
 function keyMetricsHtml(interior, cutout) {
@@ -182,11 +182,11 @@ function keyMetricsHtml(interior, cutout) {
         '<div class="layout-metrics">' +
             '<div class="layout-metric layout-metric--primary">' +
                 '<span class="layout-metric__label">Cut out opening</span>' +
-                '<span class="layout-metric__val">' + fmt(cutout.width) + ' Ã— ' + fmt(cutout.depth) + '</span>' +
+                '<span class="layout-metric__val">' + fmt(cutout.width) + ' × ' + fmt(cutout.depth) + '</span>' +
             '</div>' +
             '<div class="layout-metric">' +
                 '<span class="layout-metric__label">Interior of box</span>' +
-                '<span class="layout-metric__val">' + fmt(interior.width) + ' Ã— ' + fmt(interior.depth) + '</span>' +
+                '<span class="layout-metric__val">' + fmt(interior.width) + ' × ' + fmt(interior.depth) + '</span>' +
             '</div>' +
         '</div>'
     );
@@ -198,7 +198,7 @@ let diagramUid = 0;
 const SCREEN_DIAGRAM = { w: 560, h: 380, pad: 34 };
 
 function fmtThin(n) {
-    return Number(n).toFixed(3).replace(/\.?0+$/, '') + 'â€³';
+    return Number(n).toFixed(3).replace(/\.?0+$/, '') + '″';
 }
 
 function escAttr(s) {
@@ -215,12 +215,12 @@ function cubbyPlacementLabel(layout, chosen, panelSpan) {
     if (!openings.length) return 'None';
     var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
     return openings.map(function (o) {
-        return cap(o.side) + ' â€” opening ' + fmt(o.width) + ' Ã— ' + fmt(o.depth);
-    }).join(' Â· ');
+        return cap(o.side) + ' — opening ' + fmt(o.width) + ' × ' + fmt(o.depth);
+    }).join(' · ');
 }
 
 function cubbyDimLabel(dims) {
-    return fmtThin(dims.width) + 'Ã—' + fmtThin(dims.depth);
+    return fmtThin(dims.width) + '×' + fmtThin(dims.depth);
 }
 
 function printTimestamp() {
@@ -234,7 +234,7 @@ function boxHeightPrint() {
 
 function boxHeightPrintLabel() {
     var h = boxHeightPrint();
-    return h != null ? fmt(h) : 'â€”';
+    return h != null ? fmt(h) : '—';
 }
 
 function syncOrderCanQtyVisibility() {
@@ -248,7 +248,7 @@ function orderCansPrintLine(model) {
     if (!cb || !cb.checked) return null;
     var n = parseInt($('orderCanQty').value, 10);
     if (!isFinite(n) || n < 1) n = 1;
-    return escAttr(model.label) + ' Ã— ' + n;
+    return escAttr(model.label) + ' × ' + n;
 }
 
 function boxMaterialLabel() {
@@ -259,11 +259,11 @@ function buildPrintSheetHtml(r, layout, outer, interior, cutout, chosen) {
     var model = r.model;
     var qty = r.canQuantity;
     var cutCount = layout.id === 'single' ? 1 : 2;
-    var rotLabel = r.rotated ? 'Rotated 90Â°' : 'Standard';
+    var rotLabel = r.rotated ? 'Rotated 90°' : 'Standard';
     var sideT = sideInches();
     var cutoutLine = cutCount === 1
-        ? fmt(cutout.width) + ' Ã— ' + fmt(cutout.depth)
-        : cutCount + 'Ã— ' + fmt(cutout.width) + ' Ã— ' + fmt(cutout.depth);
+        ? fmt(cutout.width) + ' × ' + fmt(cutout.depth)
+        : cutCount + '× ' + fmt(cutout.width) + ' × ' + fmt(cutout.depth);
     var cubbyLine = cubbyPlacementLabel(layout, chosen, { width: interior.width, depth: interior.depth });
 
     var dg = buildDiagram(layout, outer, interior, cutout, chosen, {
@@ -275,7 +275,7 @@ function buildPrintSheetHtml(r, layout, outer, interior, cutout, chosen) {
     });
 
     var boxH = boxHeightPrint();
-    var outerSize = fmt(outer.width) + ' Ã— ' + fmt(outer.depth) + (boxH != null ? ' Ã— ' + fmt(boxH) : '');
+    var outerSize = fmt(outer.width) + ' × ' + fmt(outer.depth) + (boxH != null ? ' × ' + fmt(boxH) : '');
 
     var rows = function (pairs) {
         return pairs.map(function (pair) {
@@ -284,7 +284,7 @@ function buildPrintSheetHtml(r, layout, outer, interior, cutout, chosen) {
     };
 
     var specRows = [
-        ['Layout', escAttr(layout.label) + ' Â· ' + rotLabel],
+        ['Layout', escAttr(layout.label) + ' · ' + rotLabel],
         ['Box size', outerSize],
         ['Box material', escAttr(boxMaterialLabel())],
         ['Cut out opening', cutoutLine],
@@ -295,12 +295,12 @@ function buildPrintSheetHtml(r, layout, outer, interior, cutout, chosen) {
 
     return (
         '<header class="print-header">' +
-            '<h1>Shop Floor â€” Cutout Spec</h1>' +
+            '<h1>Shop Floor — Cutout Spec</h1>' +
         '</header>' +
         '<div class="print-highlight">' +
-            '<div class="print-highlight__item"><span>Box outer</span><strong>' + fmt(outer.width) + ' Ã— ' + fmt(outer.depth) + '</strong></div>' +
+            '<div class="print-highlight__item"><span>Box outer</span><strong>' + fmt(outer.width) + ' × ' + fmt(outer.depth) + '</strong></div>' +
             '<div class="print-highlight__item"><span>Box height</span><strong>' + boxHeightPrintLabel() + '</strong></div>' +
-            '<div class="print-highlight__item"><span>Interior</span><strong>' + fmt(interior.width) + ' Ã— ' + fmt(interior.depth) + '</strong></div>' +
+            '<div class="print-highlight__item"><span>Interior</span><strong>' + fmt(interior.width) + ' × ' + fmt(interior.depth) + '</strong></div>' +
             '<div class="print-highlight__item print-highlight__item--primary"><span>Cut out</span><strong>' + cutoutLine + '</strong></div>' +
         '</div>' +
         '<div class="print-spec"><table class="print-table">' + rows(specRows) + '</table></div>' +
@@ -333,7 +333,7 @@ function hitRect(r1, x, y, w, h, title, detail) {
     return '<rect class="dg-hit" data-tip-title="' + escAttr(title) + '" data-tip="' + escAttr(detail) + '" x="' + r1(x) + '" y="' + r1(y) + '" width="' + r1(w) + '" height="' + r1(h) + '" fill="transparent" pointer-events="all"/>';
 }
 
-// Top-down layout diagram â€” back=top, front=bottom.
+// Top-down layout diagram — back=top, front=bottom.
 function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
     chosen = chosen || { width: 'none', depth: 'none' };
     opts = opts || {};
@@ -435,7 +435,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
 
     function drawDividerGrooveFace(gx, gy, gw, gh, edge) {
         if (g < 0.2 || gw < 0.2) return;
-        var tip = 'Â¼â€³ groove in divider Â· ' + fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' panel lip seats here';
+        var tip = '¼″ groove in divider · ' + fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' panel lip seats here';
         if (edge === 'bottom') {
             var gy0 = gy + gh - g;
             if (forPrint) {
@@ -620,7 +620,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         var dSw = forPrint ? 1 : 1.35;
         parts.push(`<rect x="${r1(x)}" y="${r1(y)}" width="${r1(w)}" height="${r1(h)}" fill="${dFill}" stroke="${dStroke}" stroke-width="${dSw}"/>`);
         if (!skipDim && !forPrint) thicknessDim(x, y, w, h);
-        hits.push(hitRect(r1, x, y, w, h, 'Cubby divider', fmtThin(dividerIn) + ' stock Â· full panel span'));
+        hits.push(hitRect(r1, x, y, w, h, 'Cubby divider', fmtThin(dividerIn) + ' stock · full panel span'));
     };
 
     parts.push('<g class="dg-layer-shell">');
@@ -638,7 +638,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         parts.push(`<rect x="${r1(ox + ow - st)}" y="${r1(iy)}" width="${r1(st)}" height="${r1(id)}" fill="#A0AEC0" opacity="0.55"/>`);
     }
     parts.push('</g>');
-    hits.push(hitRect(r1, ox, oy, ow, od, 'Outer box', fmtThin(outerW) + ' W Ã— ' + fmtThin(outerD) + ' D'));
+    hits.push(hitRect(r1, ox, oy, ow, od, 'Outer box', fmtThin(outerW) + ' W × ' + fmtThin(outerD) + ' D'));
 
     parts.push('<g class="dg-layer-panel">');
     if (forPrint) {
@@ -675,7 +675,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         }
     }
     parts.push('</g>');
-    var panelGrooveTip = 'Maple panel Â· seats in Â¼â€³ grooves in box walls';
+    var panelGrooveTip = 'Maple panel · seats in ¼″ grooves in box walls';
     if (chosen.depth === 'back' || chosen.depth === 'front') {
         panelGrooveTip += ' (front/back seam uses divider groove)';
     }
@@ -725,9 +725,9 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
 
     var cutCount = bins.length;
     var panelTip = cutCount === 1
-        ? 'Single ply panel Â· ' + fmtThin(cutout.width) + ' Ã— ' + fmtThin(cutout.depth) + ' cut out opening @ 4.75â€³ grip'
-        : 'Single ply panel Â· ' + cutCount + ' cut out openings @ ' + fmtThin(cutout.width) + ' Ã— ' + fmtThin(cutout.depth)
-            + (bridgeIn > 0 ? ' Â· center bridge ' + fmtThin(bridgeIn) + ' (solid panel)' : '');
+        ? 'Single ply panel · ' + fmtThin(cutout.width) + ' × ' + fmtThin(cutout.depth) + ' cut out opening @ 4.75″ grip'
+        : 'Single ply panel · ' + cutCount + ' cut out openings @ ' + fmtThin(cutout.width) + ' × ' + fmtThin(cutout.depth)
+            + (bridgeIn > 0 ? ' · center bridge ' + fmtThin(bridgeIn) + ' (solid panel)' : '');
 
     parts.push('<g class="dg-layer-cutout-piece">');
     if (forPrint) {
@@ -768,12 +768,12 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         bins.forEach(function (bin) {
             var x = bin[0], y = bin[1];
             parts.push(`<rect x="${r1(x - ohW)}" y="${r1(y - ohD)}" width="${r1(rimW)}" height="${r1(rimD)}" rx="3" fill="none" stroke="#E53E3E" stroke-width="1.25" stroke-dasharray="4 3" opacity="0.9"/>`);
-            hits.push(hitRect(r1, x - ohW, y - ohD, rimW, rimD, 'Top rim', fmtThin(topRim.width) + ' Ã— ' + fmtThin(topRim.depth)));
+            hits.push(hitRect(r1, x - ohW, y - ohD, rimW, rimD, 'Top rim', fmtThin(topRim.width) + ' × ' + fmtThin(topRim.depth)));
         });
         parts.push('</g>');
     }
 
-    // Cubbies + dividers (same stock as sides â€” scaled to true thickness)
+    // Cubbies + dividers (same stock as sides — scaled to true thickness)
     function cubby(x, y, w, h) {
         var cw = Math.max(w, 0);
         var ch = Math.max(h, 0);
@@ -792,7 +792,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         drawDividerGrooveFace(bx - divT, py, divT, pd, 'right');
         centerCubbyDim(px, py, cwL, pd, dimsL);
         if (forPrint) printRegionLabel(px + cwL / 2, py + pd / 2, dimsL ? ['Cubby interior', cubbyDimLabel(dimsL)] : 'Cubby interior', { minW: cwL, minH: pd, maxW: 96 });
-        if (dimsL) hits.push(hitRect(r1, px, py, cwL, pd, 'Accessory cubby', 'Interior opening ' + fmt(dimsL.width) + ' Ã— ' + fmt(dimsL.depth)));
+        if (dimsL) hits.push(hitRect(r1, px, py, cwL, pd, 'Accessory cubby', 'Interior opening ' + fmt(dimsL.width) + ' × ' + fmt(dimsL.depth)));
     }
     if (chosen.width === 'right') {
         var cwR = px + pw - (bx + reqW + divT);
@@ -802,7 +802,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         drawDividerGrooveFace(bx + reqW, py, divT, pd, 'left');
         centerCubbyDim(bx + reqW + divT, py, cwR, pd, dimsR);
         if (forPrint) printRegionLabel(bx + reqW + divT + cwR / 2, py + pd / 2, dimsR ? ['Cubby interior', cubbyDimLabel(dimsR)] : 'Cubby interior', { minW: cwR, minH: pd, maxW: 96 });
-        if (dimsR) hits.push(hitRect(r1, bx + reqW + divT, py, cwR, pd, 'Accessory cubby', 'Interior opening ' + fmt(dimsR.width) + ' Ã— ' + fmt(dimsR.depth)));
+        if (dimsR) hits.push(hitRect(r1, bx + reqW + divT, py, cwR, pd, 'Accessory cubby', 'Interior opening ' + fmt(dimsR.width) + ' × ' + fmt(dimsR.depth)));
     }
     if (chosen.depth === 'back') {
         var chB = by - divT - divSideLip - py;
@@ -813,11 +813,11 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         drawDividerGrooveFace(px, divBackY, pw, divT, 'bottom');
         if (divSideLip > 0.3 && !forPrint) {
             parts.push('<rect x="' + r1(px) + '" y="' + r1(by - divSideLip) + '" width="' + r1(pw) + '" height="' + r1(divSideLip) + '" fill="#9AE6B4" opacity="0.55"/>');
-            hits.push(hitRect(r1, px, by - divSideLip, pw, divSideLip, 'Divider-side lip', fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5â€³ total w/ groove in divider)'));
+            hits.push(hitRect(r1, px, by - divSideLip, pw, divSideLip, 'Divider-side lip', fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5″ total w/ groove in divider)'));
         }
         centerCubbyDim(px, py, pw, chB, dimsB);
         if (forPrint) printRegionLabel(px + pw / 2, py + chB / 2, dimsB ? ['Cubby interior', cubbyDimLabel(dimsB)] : 'Cubby interior', { minW: pw, minH: chB, maxW: 96 });
-        if (dimsB) hits.push(hitRect(r1, px, py, pw, chB, 'Accessory cubby', 'Interior opening ' + fmt(dimsB.width) + ' Ã— ' + fmt(dimsB.depth)));
+        if (dimsB) hits.push(hitRect(r1, px, py, pw, chB, 'Accessory cubby', 'Interior opening ' + fmt(dimsB.width) + ' × ' + fmt(dimsB.depth)));
     }
     if (chosen.depth === 'front') {
         var chF = py + pd - (by + reqD + divSideLip + divT);
@@ -828,11 +828,11 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         drawDividerGrooveFace(px, divFrontY, pw, divT, 'top');
         if (divSideLip > 0.3 && !forPrint) {
             parts.push('<rect x="' + r1(px) + '" y="' + r1(by + reqD) + '" width="' + r1(pw) + '" height="' + r1(divSideLip) + '" fill="#9AE6B4" opacity="0.55"/>');
-            hits.push(hitRect(r1, px, by + reqD, pw, divSideLip, 'Divider-side lip', fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5â€³ total w/ groove in divider)'));
+            hits.push(hitRect(r1, px, by + reqD, pw, divSideLip, 'Divider-side lip', fmtThin(SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5″ total w/ groove in divider)'));
         }
         centerCubbyDim(px, by + reqD + divSideLip + divT, pw, chF, dimsF);
         if (forPrint) printRegionLabel(px + pw / 2, by + reqD + divSideLip + divT + chF / 2, dimsF ? ['Cubby interior', cubbyDimLabel(dimsF)] : 'Cubby interior', { minW: pw, minH: chF, maxW: 96 });
-        if (dimsF) hits.push(hitRect(r1, px, by + reqD + divSideLip + divT, pw, chF, 'Accessory cubby', 'Interior opening ' + fmt(dimsF.width) + ' Ã— ' + fmt(dimsF.depth)));
+        if (dimsF) hits.push(hitRect(r1, px, by + reqD + divSideLip + divT, pw, chF, 'Accessory cubby', 'Interior opening ' + fmt(dimsF.width) + ' × ' + fmt(dimsF.depth)));
     }
     parts.push('</g>');
 
@@ -1058,7 +1058,7 @@ function diagramPanelHtml(layout, outer, interior, cutout, chosen, orientHtml, s
         '<div class="diagram-toolbar" id="diagramToolbar">' +
             '<button type="button" class="diagram-btn diagram-btn--print" id="diagramPrintBtn" title="Print or save as PDF">Print</button>' +
             '<span class="diagram-toolbar__sep"></span>' +
-            '<button type="button" class="diagram-btn diagram-btn--icon" id="diagramZoomOut" title="Zoom out">âˆ’</button>' +
+            '<button type="button" class="diagram-btn diagram-btn--icon" id="diagramZoomOut" title="Zoom out">−</button>' +
             '<button type="button" class="diagram-btn diagram-btn--icon" id="diagramZoomIn" title="Zoom in">+</button>' +
             '<button type="button" class="diagram-btn" id="diagramZoomReset" title="Reset view">Fit</button>' +
             '<span class="diagram-toolbar__sep"></span>' +
@@ -1119,7 +1119,7 @@ function sanitizeCubbySel(orientId, cubbies) {
     if (sel.depth !== 'none' && !cubbyHasSide(cubbies, 'depth', sel.depth)) sel.depth = 'none';
 }
 
-// Cubby side pickers â€” interior opening â‰¥ 3â€³ (margin minus divider) on cubby side.
+// Cubby side pickers — interior opening ≥ 3″ (margin minus divider) on cubby side.
 function cubbyControls(o, panelSpan) {
     if (!o.fits) return '';
 
@@ -1165,8 +1165,8 @@ function cubbyControls(o, panelSpan) {
     if (openings.length) {
         var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
         summary = '<p class="cubby-summary">' + openings.map(function (op) {
-            return cap(op.side) + ': ' + fmt(op.width) + ' Ã— ' + fmt(op.depth);
-        }).join(' Â· ') + '</p>';
+            return cap(op.side) + ': ' + fmt(op.width) + ' × ' + fmt(op.depth);
+        }).join(' · ') + '</p>';
     }
 
     return `<div class="cubby cubby--interactive"><div class="cubby__title">Cubby placement</div>${rows}${summary}</div>`;
@@ -1193,8 +1193,8 @@ function orientationCard(o, outer, interior, cutout, panelSpan, cardOpts) {
         : '';
 
     var cutoutLine = o.id === 'single'
-        ? fmt(cutout.width) + ' Ã— ' + fmt(cutout.depth)
-        : '2Ã— ' + fmt(cutout.width) + ' Ã— ' + fmt(cutout.depth);
+        ? fmt(cutout.width) + ' × ' + fmt(cutout.depth)
+        : '2× ' + fmt(cutout.width) + ' × ' + fmt(cutout.depth);
 
     return `
         <div class="${cls}" data-orient-id="${o.id}" role="button" tabindex="0">
@@ -1287,7 +1287,7 @@ function refreshPrintSheetOnly() {
     updatePrintSheet(pack.result, pack.layout, pack.outer, pack.interior, pack.cutout, pack.chosen);
 }
 
-// â”€â”€ Wiring â”€â”€
+// ── Wiring ──
 $('qtySeg').addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-qty]');
     if (!btn) return;
