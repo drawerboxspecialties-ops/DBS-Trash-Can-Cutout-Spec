@@ -55,26 +55,31 @@ describe('helpers', () => {
 });
 
 describe('can taper @ 4.75″ grip', () => {
-    it('RV-35 rotated cutout matches shop trace dimensions', () => {
+    it('RV-35 rotated cutout matches shop CNC size', () => {
         const cutout = effectiveCutout(CAN_MODELS[RV35], true);
-        assert.equal(cutout.width, 8.713);
-        assert.equal(cutout.depth, 12.273);
+        assert.equal(cutout.width, 8.5);
+        assert.equal(cutout.depth, 12);
     });
 
     it('RV-35 standard swaps width and depth vs rotated', () => {
         const std = effectiveCutout(CAN_MODELS[RV35], false);
         const rot = effectiveCutout(CAN_MODELS[RV35], true);
+        assert.equal(std.width, 12);
+        assert.equal(std.depth, 8.5);
         assert.equal(std.width, rot.depth);
         assert.equal(std.depth, rot.width);
     });
 
-    it('RV-50 produces positive cutout dimensions', () => {
-        const cutout = effectiveCutout(CAN_MODELS[RV50], false);
-        assert.ok(cutout.width > 8);
-        assert.ok(cutout.depth > 8);
-        const top = effectiveTop(CAN_MODELS[RV50], false);
-        assert.ok(top.width >= cutout.width);
-        assert.ok(top.depth >= cutout.depth);
+    it('RV-50 shop cutout dimensions', () => {
+        const std = effectiveCutout(CAN_MODELS[RV50], false);
+        const rot = effectiveCutout(CAN_MODELS[RV50], true);
+        assert.equal(rot.width, 8.5);
+        assert.equal(rot.depth, 12.375);
+        assert.equal(std.width, 12.375);
+        assert.equal(std.depth, 8.5);
+        const top = effectiveTop(CAN_MODELS[RV50], true);
+        assert.ok(top.width >= rot.width);
+        assert.ok(top.depth >= rot.depth);
     });
 });
 
@@ -132,10 +137,10 @@ describe('panel margins & cubby', () => {
         assert.equal(m.marginOkFront, true);
     });
 
-    it('back cubby uses divider lip instead of full back margin at cutout seam', () => {
+    it('back cubby margin is full panel slack (divider under panel, no divider lip)', () => {
         const m = computePanelMargins('single', cutout, panelSpan, { width: 'none', depth: 'back' }, bridge);
         assert.equal(m.marginOkBack, true);
-        const slack = round3(panelSpan.depth - cutout.depth - SPEC_CONSTANTS.WOOD_MARGIN_FRONT - SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE);
+        const slack = round3(panelSpan.depth - cutout.depth - SPEC_CONSTANTS.WOOD_MARGIN_FRONT);
         assert.equal(m.panelMarginBack, slack);
     });
 

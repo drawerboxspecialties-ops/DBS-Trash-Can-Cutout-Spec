@@ -47,14 +47,14 @@ tests/              Node unit tests (math + golden shop cases)
 
 ## Golden shop cases
 
-Trace against customer PDF elevation at **4.75″ grip**. Default box: **11.375″ W × 21″ D**, **½″ sides** (interior 10.375″ × 20″).
+Trace against **shop CNC cutout sizes** (standard orientation 8.5″ × depth; swap W/D when rotated).
 
 | Can | Orientation | Cutout W × D | Fits default box? |
 |-----|-------------|--------------|-------------------|
-| RV-35 | Rotated 90° | **8.713 × 12.273** | Yes |
-| RV-35 | Standard | 12.273 × 8.713 | Yes |
-| RV-50 | Standard | **12.162 × 8.608** | No — needs wider box |
-| RV-50 | Rotated 90° | 8.608 × 12.162 | Yes (depth fits; width tight) |
+| RV-35 | Rotated 90° | **8.5 × 12** | Yes |
+| RV-35 | Standard | 12 × 8.5 | Yes |
+| RV-50 | Standard | 12.375 × 8.5 | No — needs wider box |
+| RV-50 | Rotated 90° | **8.5 × 12.375** | Yes |
 
 **Height clearance:** RV-35 needs **18.85″** interior (1″ under-can + 17.85″ can). RV-50 needs **22.75″**.
 
@@ -69,7 +69,7 @@ Full function reference: [docs/MATH_REFERENCE.md](docs/MATH_REFERENCE.md). Autom
 | Side groove depth | ¼″ in box walls |
 | Front lip (solid) | 1.0″ (+ ¼″ groove) |
 | Back lip (solid) | 0.25″ (+ ¼″ groove) |
-| Divider seam lip | 0.25″ solid in ¼″ divider groove |
+| Divider | Under holding panel (panel spans full interior; no panel lip in divider groove) |
 | Min side margin / bridge | 1.25″ |
 | Min cubby opening | 3″ |
 

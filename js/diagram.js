@@ -104,48 +104,11 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
     const bx = px + mLeft;
     const by = py + mBack;
     const panelSpan = { width: interior.width, depth: interior.depth };
-    const divSideLip = App.CS.SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE * scale;
     var cubbyOpenings = App.CS.cubbyInteriorOpenings(orientation, panelSpan, dividerIn, chosen);
     var showCabGrooveBack = chosen.depth !== 'back';
     var showCabGrooveFront = chosen.depth !== 'front';
     var showCabGrooveLeft = chosen.width !== 'left';
     var showCabGrooveRight = chosen.width !== 'right';
-
-    function drawDividerGrooveFace(gx, gy, gw, gh, edge) {
-        if (g < 0.2 || gw < 0.2) return;
-        var tip = '¼″ groove in divider · ' + App.fmtThin(App.CS.SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' panel lip seats here';
-        if (edge === 'bottom') {
-            var gy0 = gy + gh - g;
-            if (forPrint) {
-                parts.push('<line x1="' + r1(gx) + '" y1="' + r1(gy + gh) + '" x2="' + r1(gx + gw) + '" y2="' + r1(gy + gh) + '" stroke="' + ink.grooveStroke + '" stroke-width="0.75"/>');
-            } else {
-                parts.push('<rect x="' + r1(gx) + '" y="' + r1(gy0) + '" width="' + r1(gw) + '" height="' + r1(g) + '" fill="#6B4F2A" opacity="0.85"/>');
-            }
-            hits.push(hitRect(r1, gx, gy0, gw, g, 'Divider groove', tip));
-        } else if (edge === 'top') {
-            if (forPrint) {
-                parts.push('<line x1="' + r1(gx) + '" y1="' + r1(gy) + '" x2="' + r1(gx + gw) + '" y2="' + r1(gy) + '" stroke="' + ink.grooveStroke + '" stroke-width="0.75"/>');
-            } else {
-                parts.push('<rect x="' + r1(gx) + '" y="' + r1(gy) + '" width="' + r1(gw) + '" height="' + r1(g) + '" fill="#6B4F2A" opacity="0.85"/>');
-            }
-            hits.push(hitRect(r1, gx, gy, gw, g, 'Divider groove', tip));
-        } else if (edge === 'right') {
-            var gx0 = gx + gw - g;
-            if (forPrint) {
-                parts.push('<line x1="' + r1(gx + gw) + '" y1="' + r1(gy) + '" x2="' + r1(gx + gw) + '" y2="' + r1(gy + gh) + '" stroke="' + ink.grooveStroke + '" stroke-width="0.75"/>');
-            } else {
-                parts.push('<rect x="' + r1(gx0) + '" y="' + r1(gy) + '" width="' + r1(g) + '" height="' + r1(gh) + '" fill="#6B4F2A" opacity="0.85"/>');
-            }
-            hits.push(hitRect(r1, gx0, gy, g, gh, 'Divider groove', tip));
-        } else if (edge === 'left') {
-            if (forPrint) {
-                parts.push('<line x1="' + r1(gx) + '" y1="' + r1(gy) + '" x2="' + r1(gx) + '" y2="' + r1(gy + gh) + '" stroke="' + ink.grooveStroke + '" stroke-width="0.75"/>');
-            } else {
-                parts.push('<rect x="' + r1(gx) + '" y="' + r1(gy) + '" width="' + r1(g) + '" height="' + r1(gh) + '" fill="#6B4F2A" opacity="0.85"/>');
-            }
-            hits.push(hitRect(r1, gx, gy, g, gh, 'Divider groove', tip));
-        }
-    }
 
     function cubbyDims(axis, side) {
         for (var ci = 0; ci < cubbyOpenings.length; ci++) {
@@ -298,7 +261,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         var dSw = forPrint ? 1 : 1.35;
         parts.push(`<rect x="${r1(x)}" y="${r1(y)}" width="${r1(w)}" height="${r1(h)}" fill="${dFill}" stroke="${dStroke}" stroke-width="${dSw}"/>`);
         if (!skipDim && !forPrint) thicknessDim(x, y, w, h);
-        hits.push(hitRect(r1, x, y, w, h, 'Cubby divider', App.fmtThin(dividerIn) + ' stock · full panel span'));
+        hits.push(hitRect(r1, x, y, w, h, 'Cubby divider', App.fmtThin(dividerIn) + ' stock · under holding panel · full panel span'));
     };
 
     parts.push('<g class="dg-layer-shell">');
@@ -353,13 +316,7 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         }
     }
     parts.push('</g>');
-    var panelGrooveTip = 'Maple panel · seats in ¼″ grooves in box walls';
-    if (chosen.depth === 'back' || chosen.depth === 'front') {
-        panelGrooveTip += ' (front/back seam uses divider groove)';
-    }
-    if (chosen.width === 'left' || chosen.width === 'right') {
-        panelGrooveTip += ' (side seam uses divider groove)';
-    }
+    var panelGrooveTip = 'Maple panel · seats in ¼″ grooves in box walls · cubby divider is under panel';
     hits.push(hitRect(r1, px, py, pw, pd, 'Holding panel', panelGrooveTip));
 
     if (!forPrint) {
@@ -467,7 +424,6 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         var dimsL = cubbyDims('width', 'left');
         parts.push(cubby(px, py, cwL, pd));
         drawDivider(bx - divT, py, divT, pd, true);
-        drawDividerGrooveFace(bx - divT, py, divT, pd, 'right');
         centerCubbyDim(px, py, cwL, pd, dimsL);
         if (forPrint) printRegionLabel(px + cwL / 2, py + pd / 2, dimsL ? ['Cubby interior', App.cubbyDimLabel(dimsL)] : 'Cubby interior', { minW: cwL, minH: pd, maxW: 96 });
         if (dimsL) hits.push(hitRect(r1, px, py, cwL, pd, 'Accessory cubby', 'Interior opening ' + App.fmt(dimsL.width) + ' × ' + App.fmt(dimsL.depth)));
@@ -477,40 +433,29 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
         var dimsR = cubbyDims('width', 'right');
         parts.push(cubby(bx + reqW + divT, py, cwR, pd));
         drawDivider(bx + reqW, py, divT, pd, true);
-        drawDividerGrooveFace(bx + reqW, py, divT, pd, 'left');
         centerCubbyDim(bx + reqW + divT, py, cwR, pd, dimsR);
         if (forPrint) printRegionLabel(bx + reqW + divT + cwR / 2, py + pd / 2, dimsR ? ['Cubby interior', App.cubbyDimLabel(dimsR)] : 'Cubby interior', { minW: cwR, minH: pd, maxW: 96 });
         if (dimsR) hits.push(hitRect(r1, bx + reqW + divT, py, cwR, pd, 'Accessory cubby', 'Interior opening ' + App.fmt(dimsR.width) + ' × ' + App.fmt(dimsR.depth)));
     }
     if (chosen.depth === 'back') {
-        var chB = by - divT - divSideLip - py;
+        var chB = by - divT - py;
         var dimsB = cubbyDims('depth', 'back');
-        var divBackY = by - divT - divSideLip;
+        var divBackY = by - divT;
         parts.push(cubby(px, py, pw, chB));
         drawDivider(px, divBackY, pw, divT, true);
-        drawDividerGrooveFace(px, divBackY, pw, divT, 'bottom');
-        if (divSideLip > 0.3 && !forPrint) {
-            parts.push('<rect x="' + r1(px) + '" y="' + r1(by - divSideLip) + '" width="' + r1(pw) + '" height="' + r1(divSideLip) + '" fill="#9AE6B4" opacity="0.55"/>');
-            hits.push(hitRect(r1, px, by - divSideLip, pw, divSideLip, 'Divider-side lip', App.fmtThin(App.CS.SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5″ total w/ groove in divider)'));
-        }
         centerCubbyDim(px, py, pw, chB, dimsB);
         if (forPrint) printRegionLabel(px + pw / 2, py + chB / 2, dimsB ? ['Cubby interior', App.cubbyDimLabel(dimsB)] : 'Cubby interior', { minW: pw, minH: chB, maxW: 96 });
         if (dimsB) hits.push(hitRect(r1, px, py, pw, chB, 'Accessory cubby', 'Interior opening ' + App.fmt(dimsB.width) + ' × ' + App.fmt(dimsB.depth)));
     }
     if (chosen.depth === 'front') {
-        var chF = py + pd - (by + reqD + divSideLip + divT);
+        var chF = py + pd - (by + reqD + divT);
         var dimsF = cubbyDims('depth', 'front');
-        var divFrontY = by + reqD + divSideLip;
-        parts.push(cubby(px, by + reqD + divSideLip + divT, pw, chF));
+        var divFrontY = by + reqD;
+        parts.push(cubby(px, by + reqD + divT, pw, chF));
         drawDivider(px, divFrontY, pw, divT, true);
-        drawDividerGrooveFace(px, divFrontY, pw, divT, 'top');
-        if (divSideLip > 0.3 && !forPrint) {
-            parts.push('<rect x="' + r1(px) + '" y="' + r1(by + reqD) + '" width="' + r1(pw) + '" height="' + r1(divSideLip) + '" fill="#9AE6B4" opacity="0.55"/>');
-            hits.push(hitRect(r1, px, by + reqD, pw, divSideLip, 'Divider-side lip', App.fmtThin(App.CS.SPEC_CONSTANTS.WOOD_MARGIN_DIVIDER_SIDE) + ' solid (0.5″ total w/ groove in divider)'));
-        }
-        centerCubbyDim(px, by + reqD + divSideLip + divT, pw, chF, dimsF);
-        if (forPrint) printRegionLabel(px + pw / 2, by + reqD + divSideLip + divT + chF / 2, dimsF ? ['Cubby interior', App.cubbyDimLabel(dimsF)] : 'Cubby interior', { minW: pw, minH: chF, maxW: 96 });
-        if (dimsF) hits.push(hitRect(r1, px, by + reqD + divSideLip + divT, pw, chF, 'Accessory cubby', 'Interior opening ' + App.fmt(dimsF.width) + ' × ' + App.fmt(dimsF.depth)));
+        centerCubbyDim(px, by + reqD + divT, pw, chF, dimsF);
+        if (forPrint) printRegionLabel(px + pw / 2, by + reqD + divT + chF / 2, dimsF ? ['Cubby interior', App.cubbyDimLabel(dimsF)] : 'Cubby interior', { minW: pw, minH: chF, maxW: 96 });
+        if (dimsF) hits.push(hitRect(r1, px, by + reqD + divT, pw, chF, 'Accessory cubby', 'Interior opening ' + App.fmt(dimsF.width) + ' × ' + App.fmt(dimsF.depth)));
     }
     parts.push('</g>');
 

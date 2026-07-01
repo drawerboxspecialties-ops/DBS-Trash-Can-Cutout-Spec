@@ -27,8 +27,8 @@ Rounds to 3 decimal places; avoids float noise in displayed spec dimensions.
 ### `taperAt(bottom, top, totalHeight, height)`
 Linear interpolation along can height. Used to get cross-section at grip.
 
-### `gripCrossSectionCad(model)` / `gripCrossSection(model)`
-Can width × depth at **4.75″** from can bottom (shop trace height).
+### `gripCrossSection(model)` / `effectiveCutout(model, rotated)`
+Shop CNC cutout from `model.shopCutout` when defined (RV-35: 8.5×12, RV-50: 8.5×12.375 standard). Otherwise taper @ 4.75″ grip. Rotated swaps W/D.
 
 ### `rimCrossSection(model)` / `bottomCrossSection(model)`
 Widest (top rim) and narrowest (base) cross-sections from product taper data.
@@ -81,7 +81,7 @@ Cutout block size on holding panel:
 ### `computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, centerBridge)`
 Solid wood left on holding panel around cutout(s).  
 - No cubby → centered on panel (with min front/back lips).  
-- Cubby on front/back → **0.25″ divider lip** at seam (not full 1.0″ front / 0.25″ back at that edge).  
+- Cubby on front/back → divider **under** panel at seam (no 0.25″ panel lip in divider groove)
 - Cubby on left/right → can shifts; leftover margin becomes cubby side.
 
 Returns `marginOkW`, `marginOkBack`, `marginOkFront` for validation.

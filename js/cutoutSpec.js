@@ -33,8 +33,7 @@ const SPEC_CONSTANTS = Object.freeze({
     // Groove seat is part of total lip at that end — not added on top of these solids.
     WOOD_MARGIN_FRONT: 1.0,    // 1.0″ solid → 1.25″ total front lip w/ 0.25″ groove
     WOOD_MARGIN_BACK: 0.25,    // 0.25″ solid → 0.5″ total back lip w/ 0.25″ in back groove
-    // Front/back cubby divider seam — 0.25″ solid on panel, 0.25″ groove seated in divider (0.5″ total).
-    WOOD_MARGIN_DIVIDER_SIDE: 0.25,
+    // Cubby divider sits under the holding panel (panel spans full interior; no panel lip in divider groove).
     // Nominal thickness of the maple holding panel the cutouts are routed into.
     PANEL_THICKNESS: 0.625,
     // A cubby is only functional (usable as accessory storage) at this minimum opening.
@@ -77,31 +76,32 @@ const DEFAULT_SIDE_INCHES = 0.625;
 const DEFAULT_DIVIDER_INCHES = 0.75;
 
 // ── Product data matrices ────────────────────────────────────────────────────
-// Taper from customer PDF elevation (base + rim). Shop traces true taper @ 4.75″ grip.
+// Shop CNC cutout sizes (standard orientation: 8.5″ width × depth below). Taper data kept for rim clearance.
 
 const CAN_MODELS = Object.freeze({
     'RV-35_CUSTOMER': Object.freeze({
         sku: 'RV-35_CUSTOMER',
         label: 'RV-35 QT-White',
         totalHeight: round3(17.85),   // 17.85″ per customer drawing
+        shopCutout: Object.freeze({ width: 8.5, depth: 12 }), // rotated 90° install (default)
         taper: Object.freeze({
-            // Elevation base + top rim (customer PDF)
+            // Elevation base + top rim (customer PDF) — rim bridge only
             short: Object.freeze({ bottom: 8.08, top: 10.46 }),
             long: Object.freeze({ bottom: 11.57, top: 14.21 })
         }),
-        cutoutCornerRadius: round3(1.18),   // R1.18 on customer drawing (reference)
+        cutoutCornerRadius: round3(1.18),
         cutoutFromBottom: GRIP_FROM_CAN_BOTTOM
     }),
     'RV-50_V2_CUST': Object.freeze({
         sku: 'RV-50_V2_CUST',
         label: 'RV-50 QT-White',
-        totalHeight: 21.75,           // 21.75″ per customer drawing
+        totalHeight: 21.75,
+        shopCutout: Object.freeze({ width: 8.5, depth: 12.375 }), // rotated 90° install
         taper: Object.freeze({
-            // Elevation base + top rim (customer PDF)
             short: Object.freeze({ bottom: 8.09, top: 10.46 }),
             long: Object.freeze({ bottom: 11.59, top: 14.21 })
         }),
-        cutoutCornerRadius: round3(1.13),   // R1.13 on customer drawing (reference)
+        cutoutCornerRadius: round3(1.13),
         cutoutFromBottom: GRIP_FROM_CAN_BOTTOM
     })
 });
@@ -124,8 +124,19 @@ function gripCrossSectionCad(model) {
     };
 }
 
-/** Shop CNC cutout — true taper profile @ 4.75″ grip (CAD interpolation). */
+/** Shop CNC cutout — fixed sizes for rotated install when `model.shopCutout` is set. */
+function shopCutoutFor(model, rotated) {
+    const c = model.shopCutout;
+    return rotated
+        ? { width: round3(c.width), depth: round3(c.depth) }
+        : { width: round3(c.depth), depth: round3(c.width) };
+}
+
+/** Shop CNC cutout — fixed shop sizes when defined; else taper @ 4.75″ grip. */
 function gripCrossSection(model) {
+    if (model.shopCutout) {
+        return shopCutoutFor(model, false);
+    }
     const cad = gripCrossSectionCad(model);
     return {
         width: round3(cad.width),
@@ -461,6 +472,9 @@ const ORIENTATION_LABELS = {
  * installed rotated 90° (long dimension running front-to-back rather than left-right).
  */
 function effectiveCutout(model, rotated) {
+    if (model.shopCutout) {
+        return shopCutoutFor(model, rotated);
+    }
     return orient(gripCrossSection(model), rotated);
 }
 
@@ -480,12 +494,11 @@ function orient(dims, rotated) {
  * Panel wood margins (solid on holding panel).
  * No cubby: cutout centered on panel (width and depth).
  * Cubby selected: can shifts so leftover is on the cubby side.
- * Front/back cubby: 0.25″ solid lip at divider seam (0.5″ total w/ groove in divider).
- * Groove seat is extra 0.25″ in each side beyond these solids.
+ * Cubby selected: can shifts so leftover is on the cubby side.
+ * Cubby divider is under the holding panel — no panel lip seated in a divider groove.
  */
 function computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, centerBridge) {
-    const { WOOD_MARGIN, WOOD_MARGIN_FRONT, WOOD_MARGIN_BACK, WOOD_MARGIN_DIVIDER_SIDE } = SPEC_CONSTANTS;
-    const divLip = WOOD_MARGIN_DIVIDER_SIDE;
+    const { WOOD_MARGIN, WOOD_MARGIN_FRONT, WOOD_MARGIN_BACK } = SPEC_CONSTANTS;
     const w = cutout.width;
     const d = cutout.depth;
     const cp = cubbyPlacement || { width: 'none', depth: 'none' };
@@ -511,11 +524,11 @@ function computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, c
             panelMarginRight = round3(panelSpan.width - blockW - panelMarginLeft);
         }
         if (cp.depth === 'back') {
-            panelMarginBack = round3(panelSpan.depth - d - WOOD_MARGIN_FRONT - divLip);
+            panelMarginBack = round3(panelSpan.depth - d - WOOD_MARGIN_FRONT);
             panelMarginFront = WOOD_MARGIN_FRONT;
         } else if (cp.depth === 'front') {
             panelMarginBack = WOOD_MARGIN_BACK;
-            panelMarginFront = round3(panelSpan.depth - d - WOOD_MARGIN_BACK - divLip);
+            panelMarginFront = round3(panelSpan.depth - d - WOOD_MARGIN_BACK);
         } else {
             const slack = panelSpan.depth - d - WOOD_MARGIN_BACK - WOOD_MARGIN_FRONT;
             panelMarginBack = round3(WOOD_MARGIN_BACK + slack / 2);
@@ -531,11 +544,11 @@ function computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, c
 
         const blockD = 2 * d + centerBridgeD;
         if (cp.depth === 'back') {
-            panelMarginBack = round3(panelSpan.depth - blockD - WOOD_MARGIN_FRONT - divLip);
+            panelMarginBack = round3(panelSpan.depth - blockD - WOOD_MARGIN_FRONT);
             panelMarginFront = WOOD_MARGIN_FRONT;
         } else if (cp.depth === 'front') {
             panelMarginBack = WOOD_MARGIN_BACK;
-            panelMarginFront = round3(panelSpan.depth - blockD - WOOD_MARGIN_BACK - divLip);
+            panelMarginFront = round3(panelSpan.depth - blockD - WOOD_MARGIN_BACK);
         } else {
             const slack = panelSpan.depth - blockD - WOOD_MARGIN_BACK - WOOD_MARGIN_FRONT;
             panelMarginBack = round3(WOOD_MARGIN_BACK + slack / 2);
@@ -554,11 +567,11 @@ function computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, c
         }
 
         if (cp.depth === 'back') {
-            panelMarginBack = round3(panelSpan.depth - d - WOOD_MARGIN_FRONT - divLip);
+            panelMarginBack = round3(panelSpan.depth - d - WOOD_MARGIN_FRONT);
             panelMarginFront = WOOD_MARGIN_FRONT;
         } else if (cp.depth === 'front') {
             panelMarginBack = WOOD_MARGIN_BACK;
-            panelMarginFront = round3(panelSpan.depth - d - WOOD_MARGIN_BACK - divLip);
+            panelMarginFront = round3(panelSpan.depth - d - WOOD_MARGIN_BACK);
         } else {
             const slack = panelSpan.depth - d - WOOD_MARGIN_BACK - WOOD_MARGIN_FRONT;
             panelMarginBack = round3(WOOD_MARGIN_BACK + slack / 2);
@@ -567,7 +580,7 @@ function computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, c
     }
 
     const marginOkW = panelMarginLeft + 1e-6 >= WOOD_MARGIN && panelMarginRight + 1e-6 >= WOOD_MARGIN;
-    // Front/back cubby: outer cabinet lip on one end; divider seam only needs divLip solid (0.5″ total w/ groove in divider).
+    // Front/back cubby: outer cabinet lip on one end; divider is under panel at the other seam.
     const marginOkBack = cp.depth === 'back'
         ? true
         : panelMarginBack + 1e-6 >= WOOD_MARGIN_BACK;

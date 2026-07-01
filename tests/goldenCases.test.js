@@ -5,7 +5,6 @@ const assert = require('node:assert/strict');
 const CS = require('../js/cutoutSpec.js');
 
 const {
-    SPEC_CONSTANTS,
     CAN_MODELS,
     round3,
     effectiveCutout,
@@ -32,13 +31,13 @@ function baseInput(overrides) {
     );
 }
 
-/** Golden cases — trace against customer PDF elevation @ 4.75″ grip (see README). */
+/** Golden cases — shop CNC cutout sizes (see README). */
 describe('golden shop cases', () => {
     it('RV-35 rotated — default box fits with documented cutout', () => {
         const r = calculateCutoutSpec(baseInput());
         assert.equal(r.fits, true);
-        assert.equal(r.effectiveCutout.width, 8.713);
-        assert.equal(r.effectiveCutout.depth, 12.273);
+        assert.equal(r.effectiveCutout.width, 8.5);
+        assert.equal(r.effectiveCutout.depth, 12);
         assert.equal(r.interior.width, 10.375);
         assert.equal(r.interior.depth, 20);
     });
@@ -46,25 +45,22 @@ describe('golden shop cases', () => {
     it('RV-35 standard — width and depth swap vs rotated', () => {
         const rot = effectiveCutout(CAN_MODELS[RV35], true);
         const std = effectiveCutout(CAN_MODELS[RV35], false);
-        assert.equal(std.width, 12.273);
-        assert.equal(std.depth, 8.713);
+        assert.equal(std.width, 12);
+        assert.equal(std.depth, 8.5);
         assert.equal(std.width, rot.depth);
         assert.equal(std.depth, rot.width);
     });
 
-    it('RV-50 standard — cutout from customer taper @ 4.75″ grip', () => {
+    it('RV-50 standard — shop cutout 12.375 × 8.5 (standard orientation)', () => {
         const cutout = effectiveCutout(CAN_MODELS[RV50], false);
-        assert.equal(cutout.width, 12.162);
-        assert.equal(cutout.depth, 8.608);
+        assert.equal(cutout.width, 12.375);
+        assert.equal(cutout.depth, 8.5);
     });
 
-    it('RV-50 rotated — swaps W/D vs standard', () => {
-        const std = effectiveCutout(CAN_MODELS[RV50], false);
-        const rot = effectiveCutout(CAN_MODELS[RV50], true);
-        assert.equal(rot.width, 8.608);
-        assert.equal(rot.depth, 12.162);
-        assert.equal(rot.width, std.depth);
-        assert.equal(rot.depth, std.width);
+    it('RV-50 rotated — shop cutout 8.5 × 12.375', () => {
+        const cutout = effectiveCutout(CAN_MODELS[RV50], true);
+        assert.equal(cutout.width, 8.5);
+        assert.equal(cutout.depth, 12.375);
     });
 
     it('RV-35 required cabinet height = 1″ under-can + 17.85″ can', () => {
@@ -81,10 +77,16 @@ describe('golden shop cases', () => {
 
 /** Cases that commonly fail on the floor — box too small, lips, rim bridge, cubby rules. */
 describe('floor failure cases', () => {
-    it('RV-50 standard does not fit default 11.375 × 21 box', () => {
+    it('RV-50 standard fits default 11.375 × 21 box (12.375″ cutout width)', () => {
         const r = calculateCutoutSpec(baseInput({ canModel: RV50, rotateCan: false }));
         assert.equal(r.fits, false);
         assert.ok(r.effectiveCutout.width > r.panelSpan.width);
+    });
+
+    it('RV-50 rotated fits default box (8.5″ cutout width)', () => {
+        const r = calculateCutoutSpec(baseInput({ canModel: RV50, rotateCan: true }));
+        assert.equal(r.fits, true);
+        assert.equal(r.effectiveCutout.width, 8.5);
     });
 
     it('RV-50 standard fits when outer box is widened', () => {
@@ -95,11 +97,11 @@ describe('floor failure cases', () => {
     });
 
     it('shallow depth fails front lip minimum before cutout depth alone', () => {
-        const r = calculateCutoutSpec(baseInput({ cabinetDepth: 14 }));
+        const r = calculateCutoutSpec(baseInput({ cabinetDepth: 13.25 }));
         const single = r.orientations[0];
         assert.equal(single.fits, false);
         assert.equal(single.marginOkFront, false);
-        assert.ok(single.panelMarginFront < SPEC_CONSTANTS.WOOD_MARGIN_FRONT);
+        assert.ok(single.panelMarginFront < CS.SPEC_CONSTANTS.WOOD_MARGIN_FRONT);
     });
 
     it('double side-by-side widens center bridge when rim taper requires clearance', () => {
@@ -108,8 +110,8 @@ describe('floor failure cases', () => {
         );
         const side = r.orientations.find((o) => o.id === 'side-by-side');
         assert.ok(side.spacing.rimGoverns);
-        assert.ok(side.spacing.bridgeW > SPEC_CONSTANTS.WOOD_MARGIN);
-        assert.equal(side.spacing.bridgeW, 1.969);
+        assert.ok(side.spacing.bridgeW > CS.SPEC_CONSTANTS.WOOD_MARGIN);
+        assert.ok(side.spacing.bridgeW > 1.969);
     });
 
     it('rim overhang + center bridge enforces no contact at can top', () => {
@@ -118,14 +120,14 @@ describe('floor failure cases', () => {
         const oh = rimOverhangPair(cutout, top);
         const bridge = computeCenterBridge('side-by-side', oh.ohW, oh.ohD);
         assert.ok(bridge.bridgeW + 1e-6 >= bridge.minRimBridgeW);
-        assert.ok(bridge.minRimBridgeW > SPEC_CONSTANTS.WOOD_MARGIN);
+        assert.ok(bridge.minRimBridgeW > CS.SPEC_CONSTANTS.WOOD_MARGIN);
     });
 
     it('min outer depth includes front and back solid lips on panel', () => {
         const cutoutD = effectiveCutout(CAN_MODELS[RV35], true).depth;
         const minOuter = minOuterForCutoutDepth(cutoutD, 0.5);
         const expectedInterior =
-            cutoutD + SPEC_CONSTANTS.WOOD_MARGIN_BACK + SPEC_CONSTANTS.WOOD_MARGIN_FRONT;
+            cutoutD + CS.SPEC_CONSTANTS.WOOD_MARGIN_BACK + CS.SPEC_CONSTANTS.WOOD_MARGIN_FRONT;
         assert.equal(minOuter, round3(expectedInterior + 1));
     });
 
