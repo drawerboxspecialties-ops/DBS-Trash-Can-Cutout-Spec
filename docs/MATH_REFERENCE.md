@@ -66,7 +66,7 @@ Min outer **depth** when cutout + back solid lip (0.25″) + front solid lip (1.
 Swap width/depth when can is installed rotated 90°.
 
 ### `computeCenterBridge(orientationId, ohW, ohD)`
-Center bridge between two cutouts on double layouts. Uses `max(1.25″ structural, rim no-contact gap)`.
+Center bridge between two cutouts on double layouts. Fixed shop value **1.8125″** on the paired axis (`CENTER_BRIDGE`). Rim taper min is computed for reference (`rimGoverns`).
 
 ### `footprintFor(orientationId, cutout, centerBridge)`
 Cutout block size on holding panel:

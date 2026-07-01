@@ -70,7 +70,8 @@ Full function reference: [docs/MATH_REFERENCE.md](docs/MATH_REFERENCE.md). Autom
 | Front lip (solid) | 1.0″ (+ ¼″ groove) |
 | Back lip (solid) | 0.25″ (+ ¼″ groove) |
 | Divider | Under holding panel (panel spans full interior; no panel lip in divider groove) |
-| Min side margin / bridge | 1.25″ |
+| Center bridge (double) | **1.8125″** |
+| Min side margin | 1.25″ |
 | Min cubby opening | 3″ |
 
 Interior W×D = outer W×D minus **2× side thickness**. Panel span equals interior; grooves are in the box walls, not deducted from routable panel length.

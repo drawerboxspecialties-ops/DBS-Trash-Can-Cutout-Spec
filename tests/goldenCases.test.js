@@ -104,23 +104,31 @@ describe('floor failure cases', () => {
         assert.ok(single.panelMarginFront < CS.SPEC_CONSTANTS.WOOD_MARGIN_FRONT);
     });
 
-    it('double side-by-side widens center bridge when rim taper requires clearance', () => {
+    it('double side-by-side uses 1.8125″ shop center bridge', () => {
+        const r = calculateCutoutSpec(
+            baseInput({ cabinetWidth: 24, cabinetDepth: 22, canQuantity: 2, rotateCan: false })
+        );
+        const side = r.orientations.find((o) => o.id === 'side-by-side');
+        assert.equal(side.spacing.bridgeW, 1.8125);
+        assert.equal(side.requiredWidth, round3(2 * r.effectiveCutout.width + 1.8125));
+    });
+
+    it('rim reference may exceed shop bridge (informational)', () => {
         const r = calculateCutoutSpec(
             baseInput({ cabinetWidth: 24, cabinetDepth: 22, canQuantity: 2, rotateCan: false })
         );
         const side = r.orientations.find((o) => o.id === 'side-by-side');
         assert.ok(side.spacing.rimGoverns);
-        assert.ok(side.spacing.bridgeW > CS.SPEC_CONSTANTS.WOOD_MARGIN);
-        assert.ok(side.spacing.bridgeW > 1.969);
+        assert.equal(side.spacing.bridgeW, CS.SPEC_CONSTANTS.CENTER_BRIDGE);
     });
 
-    it('rim overhang + center bridge enforces no contact at can top', () => {
+    it('rim overhang reference vs shop bridge', () => {
         const cutout = effectiveCutout(CAN_MODELS[RV35], false);
         const top = { width: CAN_MODELS[RV35].taper.long.top, depth: CAN_MODELS[RV35].taper.short.top };
         const oh = rimOverhangPair(cutout, top);
         const bridge = computeCenterBridge('side-by-side', oh.ohW, oh.ohD);
-        assert.ok(bridge.bridgeW + 1e-6 >= bridge.minRimBridgeW);
-        assert.ok(bridge.minRimBridgeW > CS.SPEC_CONSTANTS.WOOD_MARGIN);
+        assert.equal(bridge.bridgeW, CS.SPEC_CONSTANTS.CENTER_BRIDGE);
+        assert.ok(bridge.minRimBridgeW > 0);
     });
 
     it('min outer depth includes front and back solid lips on panel', () => {

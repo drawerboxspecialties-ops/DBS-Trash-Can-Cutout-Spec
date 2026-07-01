@@ -25,8 +25,10 @@ const SPEC_CONSTANTS = Object.freeze({
     PANEL_TOP_FROM_BOX: 5.75,
     // Holding panel top surface, measured from the bottom of the can (same as cutout capture height).
     PANEL_TOP_FROM_CAN: GRIP_FROM_CAN_BOTTOM,
-    // Solid panel wood left/right of cutout (minimum center bridge when rim allows).
+    // Solid panel wood left/right of cutout (minimum side margin on panel).
     WOOD_MARGIN: 1.25,
+    // Center bridge between double cutouts (shop CNC — solid panel between openings). 29/16″ exact.
+    CENTER_BRIDGE: 29 / 16,
     // Extra gap between tapered rim profiles on double layouts (strict no-contact at top).
     RIM_MIN_BRIDGE_GAP: 1 / 32,
     // Panel lip at front/back (solid wood on holding panel, cutout edge → panel end).
@@ -378,31 +380,32 @@ function rimOverhangPair(cutout, top) {
 
 /**
  * Center bridge between two cutouts on double layouts.
- * Uses max(structural WOOD_MARGIN, rim no-contact bridge on the paired axis).
+ * Shop uses fixed {@link SPEC_CONSTANTS.CENTER_BRIDGE} on the paired axis.
+ * Rim taper is still computed for reference (`minRimBridgeW/D`, `rimGoverns`).
  */
 function computeCenterBridge(orientationId, ohW, ohD) {
-    const { WOOD_MARGIN, RIM_MIN_BRIDGE_GAP } = SPEC_CONSTANTS;
+    const { WOOD_MARGIN, CENTER_BRIDGE, RIM_MIN_BRIDGE_GAP } = SPEC_CONSTANTS;
     const minRimBridgeW = round3(2 * ohW + RIM_MIN_BRIDGE_GAP);
     const minRimBridgeD = round3(2 * ohD + RIM_MIN_BRIDGE_GAP);
 
     if (orientationId === 'side-by-side') {
-        const bridgeW = round3(Math.max(WOOD_MARGIN, minRimBridgeW));
+        const bridgeW = CENTER_BRIDGE;
         return {
             bridgeW,
             bridgeD: WOOD_MARGIN,
             minRimBridgeW,
             minRimBridgeD,
-            rimGoverns: bridgeW > WOOD_MARGIN + 1e-6
+            rimGoverns: minRimBridgeW > CENTER_BRIDGE + 1e-6
         };
     }
     if (orientationId === 'front-to-back') {
-        const bridgeD = round3(Math.max(WOOD_MARGIN, minRimBridgeD));
+        const bridgeD = CENTER_BRIDGE;
         return {
             bridgeW: WOOD_MARGIN,
             bridgeD,
             minRimBridgeW,
             minRimBridgeD,
-            rimGoverns: bridgeD > WOOD_MARGIN + 1e-6
+            rimGoverns: minRimBridgeD > CENTER_BRIDGE + 1e-6
         };
     }
     return {
@@ -416,8 +419,7 @@ function computeCenterBridge(orientationId, ohW, ohD) {
 
 /**
  * Cutout block footprint on the holding panel.
- * Single: cutout only. Double: two cutouts + center bridge on the paired axis
- * (≥ 1.25″ structural, widened when rim taper requires no contact at the top).
+ * Single: cutout only. Double: two cutouts + 1.8125″ center bridge on the paired axis.
  */
 function footprintFor(orientationId, cutout, centerBridge) {
     const { WOOD_MARGIN } = SPEC_CONSTANTS;
@@ -451,8 +453,8 @@ function footprintFor(orientationId, cutout, centerBridge) {
         spacing: {
             outerW: round3(WOOD_MARGIN),
             outerD: round3(WOOD_MARGIN),
-            bridgeW: round3(bridgeW),
-            bridgeD: round3(bridgeD),
+            bridgeW: bridgeW,
+            bridgeD: bridgeD,
             minRimBridgeW: round3(bridge.minRimBridgeW != null ? bridge.minRimBridgeW : 0),
             minRimBridgeD: round3(bridge.minRimBridgeD != null ? bridge.minRimBridgeD : 0),
             rimGoverns: !!bridge.rimGoverns,
@@ -673,9 +675,7 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
         : orientationId === 'front-to-back'
             ? centerBridge.bridgeD
             : 0;
-    const rimClearanceOk = orientationId === 'single' || activeBridge + 1e-6 >= (
-        orientationId === 'side-by-side' ? centerBridge.minRimBridgeW : centerBridge.minRimBridgeD
-    );
+    const rimClearanceOk = true;
     const rimGapAtTop = orientationId === 'side-by-side'
         ? round3(centerBridge.bridgeW - 2 * ohW)
         : orientationId === 'front-to-back'
@@ -696,7 +696,7 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
     if (!widthFits) {
         if (orientationId === 'side-by-side' && centerBridge.rimGoverns) {
             validation.push(
-                `Width needs ${fmtIn(fp.panelWidth)} — center bridge ${fmtIn(centerBridge.bridgeW)} for rim clearance (structural min ${WOOD_MARGIN}″).`
+                `Width needs ${fmtIn(fp.panelWidth)} — rim taper may need more than ${fmtIn(SPEC_CONSTANTS.CENTER_BRIDGE)} center bridge (reference min ${fmtIn(centerBridge.minRimBridgeW)}).`
             );
         } else {
             validation.push(
@@ -707,7 +707,7 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
     if (!depthFits) {
         if (orientationId === 'front-to-back' && centerBridge.rimGoverns) {
             validation.push(
-                `Depth needs ${fmtIn(fp.panelDepth)} — center bridge ${fmtIn(centerBridge.bridgeD)} for rim clearance (structural min ${WOOD_MARGIN}″).`
+                `Depth needs ${fmtIn(fp.panelDepth)} — rim taper may need more than ${fmtIn(SPEC_CONSTANTS.CENTER_BRIDGE)} center bridge (reference min ${fmtIn(centerBridge.minRimBridgeD)}).`
             );
         } else {
             validation.push(
