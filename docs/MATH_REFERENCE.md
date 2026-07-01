@@ -56,7 +56,7 @@ Minimum outer box size for a required interior.
 Shorthand: min outer when cutout block must fit interior on one axis.
 
 ### `minOuterForCutoutDepth(cutoutDepth, sideThickness)`
-Min outer **depth** when cutout + back solid lip (0.4375″) + front solid lip (1.0″) must fit on depth axis.
+Min outer **depth** when cutout + back lip (0.4375″ total, 0.1875″ solid) + front solid lip (1.0″) must fit on depth axis.
 
 ---
 

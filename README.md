@@ -68,7 +68,7 @@ Full function reference: [docs/MATH_REFERENCE.md](docs/MATH_REFERENCE.md). Autom
 | Panel top from box floor | 5.75″ |
 | Side groove depth | ¼″ in box walls |
 | Front lip (solid) | 1.0″ (+ ¼″ groove) |
-| Back lip (solid) | 0.4375″ (+ ¼″ groove → 0.6875″ total) |
+| Back lip | 0.4375″ total (0.1875″ solid + ¼″ groove) |
 | Divider | Under holding panel (panel spans full interior; no panel lip in divider groove) |
 | Center bridge (double) | **1.8125″** |
 | Min side margin | 1.25″ |
