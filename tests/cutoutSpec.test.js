@@ -40,7 +40,7 @@ describe('helpers', () => {
     });
 
     it('lipEnvelope adds groove depth to solid lip', () => {
-        assert.equal(lipEnvelope(0.25), 0.5);
+        assert.equal(lipEnvelope(7 / 16), round3(7 / 16 + SPEC_CONSTANTS.GROOVE_DEPTH));
         assert.equal(lipEnvelope(1.0), 1.25);
     });
 

@@ -34,7 +34,7 @@ const SPEC_CONSTANTS = Object.freeze({
     // Panel lip at front/back (solid wood on holding panel, cutout edge → panel end).
     // Groove seat is part of total lip at that end — not added on top of these solids.
     WOOD_MARGIN_FRONT: 1.0,    // 1.0″ solid → 1.25″ total front lip w/ 0.25″ groove
-    WOOD_MARGIN_BACK: 0.25,    // 0.25″ solid → 0.5″ total back lip w/ 0.25″ in back groove
+    WOOD_MARGIN_BACK: 7 / 16,    // 0.4375″ solid → 0.6875″ total back lip w/ 0.25″ in back groove
     // Cubby divider sits under the holding panel (panel spans full interior; no panel lip in divider groove).
     // Nominal thickness of the maple holding panel the cutouts are routed into.
     PANEL_THICKNESS: 0.625,
@@ -194,7 +194,7 @@ function lipEnvelope(solidLip) {
     return round3(solidLip + SPEC_CONSTANTS.GROOVE_DEPTH);
 }
 
-/** Minimum total back lip (0.25″ solid + 0.25″ groove seat). */
+/** Minimum total back lip (0.4375″ solid + 0.25″ groove seat). */
 function minBackLipTotal() {
     return lipEnvelope(SPEC_CONSTANTS.WOOD_MARGIN_BACK);
 }
