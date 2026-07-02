@@ -26,7 +26,7 @@ const SPEC_CONSTANTS = Object.freeze({
     // Holding panel top surface, measured from the bottom of the can (same as cutout capture height).
     PANEL_TOP_FROM_CAN: GRIP_FROM_CAN_BOTTOM,
     // Solid panel wood left/right of cutout (minimum side margin on panel).
-    WOOD_MARGIN: 1.25,
+    WOOD_MARGIN: 1 / 2,    // 0.5″ solid → 0.75″ total side lip (0.25″ in side groove)
     // Center bridge between double cutouts (shop CNC — solid panel between openings). 29/16″ exact.
     CENTER_BRIDGE: 29 / 16,
     // Extra gap between tapered rim profiles on double layouts (strict no-contact at top).
@@ -192,6 +192,11 @@ function minOuterForCutout(cutoutSize, sideThickness) {
 /** Total panel lip at one end (solid on panel + groove seat in the box wall). */
 function lipEnvelope(solidLip) {
     return round3(solidLip + SPEC_CONSTANTS.GROOVE_DEPTH);
+}
+
+/** Minimum total side lip (0.75″ incl. 0.25″ groove seat + 0.5″ solid on panel). */
+function minSideLipTotal() {
+    return lipEnvelope(SPEC_CONSTANTS.WOOD_MARGIN);
 }
 
 /** Minimum total back lip (0.4375″ incl. 0.25″ groove seat + 0.1875″ solid on panel). */
@@ -634,6 +639,7 @@ function relayoutForCubby(orientation, cutout, panelSpan, dividerThickness, cubb
         marginOk,
         lipBackTotal: lipEnvelope(panelMarginBack),
         lipFrontTotal: lipEnvelope(panelMarginFront),
+        lipSideTotal: lipEnvelope(panelMarginLeft),
         panelMarginW: panelMarginLeft,
         panelMarginD: panelMarginFront,
         cubbies
@@ -686,7 +692,7 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
 
     const outerLipBack = round3(T + lipEnvelope(panelMarginBack));
     const outerLipFront = round3(T + lipEnvelope(panelMarginFront));
-    const outerLipW = round3(T + panelMarginLeft);
+    const outerLipW = round3(T + lipEnvelope(panelMarginLeft));
 
     const cubbies = fits
         ? analyzeCubbyOptions(orientationId, cutout, panelSpan, dividerThickness, centerBridge)
@@ -724,6 +730,15 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
     if (widthFits && depthFits && !marginOkFront) {
         validation.push(`Front lip ${fmtIn(panelMarginFront)} solid — min ${WOOD_MARGIN_FRONT}″ (+ ${fmtIn(GROOVE_DEPTH)} groove).`);
     }
+    if (widthFits && depthFits && !marginOkW) {
+        const sideFail = panelMarginLeft + 1e-6 < WOOD_MARGIN
+            ? `left ${fmtIn(panelMarginLeft)}`
+            : `right ${fmtIn(panelMarginRight)}`;
+        validation.push(
+            `Side lip ${sideFail} solid — min ${WOOD_MARGIN}″ ` +
+            `(${fmtIn(minSideLipTotal())} total incl. ${fmtIn(GROOVE_DEPTH)} groove).`
+        );
+    }
 
     return {
         id: orientationId,
@@ -744,6 +759,7 @@ function evaluateOrientation(orientationId, cutout, panelSpan, model, dividerThi
         panelMarginFront,
         lipBackTotal: lipEnvelope(panelMarginBack),
         lipFrontTotal: lipEnvelope(panelMarginFront),
+        lipSideTotal: lipEnvelope(panelMarginLeft),
         panelMarginW: panelMarginLeft,
         panelMarginD: panelMarginFront,
         outerLipW,

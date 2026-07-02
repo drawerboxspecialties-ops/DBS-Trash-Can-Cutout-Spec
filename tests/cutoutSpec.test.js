@@ -41,6 +41,7 @@ describe('helpers', () => {
 
     it('lipEnvelope adds groove depth to solid lip', () => {
         assert.equal(lipEnvelope(3 / 16), round3(3 / 16 + SPEC_CONSTANTS.GROOVE_DEPTH));
+        assert.equal(lipEnvelope(1 / 2), 0.75);
         assert.equal(lipEnvelope(1.0), 1.25);
     });
 
@@ -133,6 +134,9 @@ describe('panel margins & cubby', () => {
         const m = computePanelMargins('single', cutout, panelSpan, { width: 'none', depth: 'none' }, bridge);
         assert.ok(m.panelMarginBack >= SPEC_CONSTANTS.WOOD_MARGIN_BACK - 1e-6);
         assert.ok(m.panelMarginFront >= SPEC_CONSTANTS.WOOD_MARGIN_FRONT - 1e-6);
+        assert.ok(m.panelMarginLeft >= SPEC_CONSTANTS.WOOD_MARGIN - 1e-6);
+        assert.ok(m.panelMarginRight >= SPEC_CONSTANTS.WOOD_MARGIN - 1e-6);
+        assert.equal(m.marginOkW, true);
         assert.equal(m.marginOkBack, true);
         assert.equal(m.marginOkFront, true);
     });

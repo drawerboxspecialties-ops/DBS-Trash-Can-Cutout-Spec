@@ -80,7 +80,8 @@ Cutout block size on holding panel:
 
 ### `computePanelMargins(orientationId, cutout, panelSpan, cubbyPlacement, centerBridge)`
 Solid wood left on holding panel around cutout(s).  
-- No cubby → centered on panel (with min front/back lips).  
+- No cubby → centered on panel (with min front/back/side lips).  
+- Side lips: **0.5″ solid** on panel → **0.75″ total** (0.25″ in side groove).
 - Cubby on front/back → divider **under** panel at seam (no 0.25″ panel lip in divider groove)
 - Cubby on left/right → can shifts; leftover margin becomes cubby side.
 

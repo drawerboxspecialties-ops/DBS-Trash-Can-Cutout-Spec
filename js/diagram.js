@@ -336,11 +336,11 @@ function buildDiagram(orientation, outer, interior, cutout, chosen, opts) {
             }
             if (showLeft) {
                 parts.push(`<rect x="${r1(binX - mLeft)}" y="${r1(binY)}" width="${r1(mLeft)}" height="${r1(binH)}" fill="${lipSide}" opacity="0.4"/>`);
-                hits.push(hitRect(r1, binX - mLeft, binY, mLeft, binH, 'Side lip', App.fmtThin(orientation.panelMarginLeft) + ' solid'));
+                hits.push(hitRect(r1, binX - mLeft, binY, mLeft, binH, 'Side lip', App.fmtThin(orientation.panelMarginLeft) + ' solid (' + App.fmtThin(App.CS.lipEnvelope(orientation.panelMarginLeft)) + ' total w/ groove)'));
             }
             if (showRight) {
                 parts.push(`<rect x="${r1(binX + binW)}" y="${r1(binY)}" width="${r1(mRight)}" height="${r1(binH)}" fill="${lipSide}" opacity="0.4"/>`);
-                hits.push(hitRect(r1, binX + binW, binY, mRight, binH, 'Side lip', App.fmtThin(orientation.panelMarginRight) + ' solid'));
+                hits.push(hitRect(r1, binX + binW, binY, mRight, binH, 'Side lip', App.fmtThin(orientation.panelMarginRight) + ' solid (' + App.fmtThin(App.CS.lipEnvelope(orientation.panelMarginRight)) + ' total w/ groove)'));
             }
         }
         parts.push('<g class="dg-layer-lips">');
